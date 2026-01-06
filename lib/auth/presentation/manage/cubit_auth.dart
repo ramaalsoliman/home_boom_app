@@ -44,6 +44,7 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_boom_app/auth/model/login_model.dart';
 import 'package:home_boom_app/auth/service/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'state_auth.dart';
 
 class CubitAuth extends Cubit<StateAuth> {
@@ -58,6 +59,12 @@ class CubitAuth extends Cubit<StateAuth> {
       emit(EmailFailure("Your account is awaiting admin approval. Please wait."));
     } else {
       emit(AuthSuccess(user));
+      
+        final prefs = await SharedPreferences.getInstance();
+        print("Saved user_id in storage: ${prefs.getInt('user_id')}");
+         final prefss = await SharedPreferences.getInstance();
+        print("Saved phone_number in storage: ${prefss.getString('number_phone')}");
+    
     }
   } else {
     emit(AuthFauiler(message: "Server error or invalid credentials"));

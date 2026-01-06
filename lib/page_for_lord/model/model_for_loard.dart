@@ -53,15 +53,18 @@ class ModelForLoard {
   }
 
   factory ModelForLoard.fromMap(Map<String, dynamic> map) {
-    return ModelForLoard(
-      id: map['id'] as int,
-      title: map['title'] as String,
-      price: map['price'] as int,
-      outdoor_image: map['outdoor_image'] as String,
-      location: map['location'] as String,
-      number_phone: map['number_phone'] as String,
-      rooms: map['rooms']as int
-    );
+  
+      return ModelForLoard(
+  id: map['id'] ?? 0,
+    title: map['title']?.toString() ?? '',
+    price: map['price'] ?? 0,
+    outdoor_image: map['outdoor_image']?.toString() ?? '',
+    location: map['location']?.toString() ?? '',
+    number_phone: map['number_phone']?.toString() ?? '',
+    rooms: map['rooms'] ?? 0,
+);
+      
+    
   }
 
   String toJson() => json.encode(toMap());

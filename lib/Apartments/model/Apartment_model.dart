@@ -9,13 +9,16 @@ class ApartmentModel {
   String title;
   int price;
   String outdoor_image;
+  //محافظه 
   String location;
+  double rating;
   ApartmentModel({
       required this.id,
     required this.title,
     required this.price,
     required this.outdoor_image,
     required this.location,
+    required this.rating,
   });
 
   ApartmentModel copyWith({
@@ -23,6 +26,7 @@ class ApartmentModel {
     int? price,
     String? outdoor_image,
     String? location,
+    double?rating,
   }) {
     return ApartmentModel(
        id: id ?? this.id,
@@ -30,6 +34,7 @@ class ApartmentModel {
       price: price ?? this.price,
       outdoor_image: outdoor_image ?? this.outdoor_image,
       location: location ?? this.location,
+      rating: rating??this.rating,
     );
   }
 
@@ -40,17 +45,19 @@ class ApartmentModel {
       'price': price,
       'outdoor_image': outdoor_image,
       'location': location,
+      'rating':rating
     };
   }
 
   factory ApartmentModel.fromMap(Map<String, dynamic> map) {
     return ApartmentModel(
-      // استخدام toString و toInt لضمان عدم حدوث خطأ إذا جاءت البيانات بشكل مختلف
+      
       id: map['id'],
        title: map['title']?.toString() ?? '',
       price: (map['price'] as num?)?.toInt() ?? 0,
       outdoor_image: map['outdoor_image']?.toString() ?? '',
       location: map['location']?.toString() ?? '',
+    rating: map['rating'] != null ? (map['rating'] as num).toDouble() : 0.0,
     );
   }
 
@@ -60,7 +67,7 @@ class ApartmentModel {
 
   @override
   String toString() {
-    return 'ApartmentModel(id: $id,,title: $title, price: $price, outdoor_image: $outdoor_image, location: $location)';
+    return 'ApartmentModel(rating:$rating,id: $id,,title: $title, price: $price, outdoor_image: $outdoor_image, location: $location)';
   }
 
   @override
@@ -68,6 +75,7 @@ class ApartmentModel {
     if (identical(this, other)) return true;
   
     return 
+    other.rating==rating&&
     other.id == id &&
       other.title == title &&
       other.price == price &&
@@ -78,6 +86,7 @@ class ApartmentModel {
   @override
   int get hashCode {
     return
+    rating.hashCode^
     id.hashCode ^
      title.hashCode ^
       price.hashCode ^

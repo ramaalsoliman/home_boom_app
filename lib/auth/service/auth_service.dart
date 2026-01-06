@@ -89,6 +89,16 @@ class AuthService {
 
   Future<void> storeToken(String accessToken) async {
     (await SharedPreferences.getInstance()).setString("token", accessToken);
+    print("Token saved: $accessToken");
+  }
+  Future<void> storeUserId(int accessUserId) async {
+    (await SharedPreferences.getInstance()).setInt("user_id", accessUserId);
+     print("User ID saved: $accessUserId");
+  }
+
+  Future<void> storeNumberPhone(String accessNumberPhone) async {
+    (await SharedPreferences.getInstance()).setString("number_phone", accessNumberPhone);
+    print("Phone number saved successfully: $accessNumberPhone");
   }
 
   Future<User?> login(Map<String, dynamic> data) async {
@@ -104,6 +114,12 @@ class AuthService {
       if (response.statusCode == 200) {
         debugPrint("Login success, token: ${response.data['token']}");
         await storeToken(response.data['token']);
+        int userId = response.data['user']['id'];
+      await storeUserId(userId);
+      await storeNumberPhone(response.data['user']['number_phone']);
+
+      // طباعة للتأكد
+      debugPrint("Saved user_id: $userId");
         return User.fromMap(response.data['user']);
       } else if(response.statusCode==403){
       return User.fromMap({
@@ -172,9 +188,13 @@ class AuthService {
   }
 Future<bool> logout() async {
   final prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString("token");
+  final token = prefs.getString("token");
+  print("Logging out with token: $token"); // تأكد هنا
 
-  if (token == null) return false;
+  if (token == null) {
+    print("No token found, cannot logout");
+    return false;
+  }
 
   try {
     var response = await dio.post(
@@ -186,15 +206,15 @@ Future<bool> logout() async {
     );
 
     if (response.statusCode == 200) {
-      await prefs.remove("token"); 
+      await prefs.clear();
       return true;
     } else {
+      print("Logout API failed: ${response.statusCode}");
+      print("Response: ${response.data}");
       return false;
     }
   } on DioException catch (e) {
-    print(e.response?.data ?? e.message);
+    print("Logout exception: ${e.response?.data ?? e.message}");
     return false;
   }
-}
-
-}
+}}

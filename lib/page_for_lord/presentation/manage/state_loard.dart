@@ -18,8 +18,7 @@ class LoardApartmentFailure extends StateLoard {
 }
 
 class ApartmentDeleted extends StateLoard {
-  final int id; // الـ id يلي تم حذفه
-
+  final int id; 
   ApartmentDeleted({required this.id});
 }
 
@@ -27,4 +26,26 @@ class ApartmentUpdated extends StateLoard {
   final ModelForLoard apartment;
 
   ApartmentUpdated({required this.apartment});
+   
+ 
+}
+
+class UpdateApartmentFailure extends StateLoard {
+  final String message;
+
+  UpdateApartmentFailure({required this.message});
+}
+class DeleteApartmentFailure extends StateLoard {
+  final String message;
+
+  DeleteApartmentFailure({required this.message});
+}
+class DeleteApartmentSuccess extends StateLoard {
+  final int id;
+  DeleteApartmentSuccess(this.id);}
+
+  class UpdateApartmentSuccess extends StateLoard {
+  final ModelForLoard apartment;
+  UpdateApartmentSuccess(this.apartment);
+
 }
