@@ -18,4 +18,16 @@ emit(ApartmentSuccess(apartments));
       emit(ApartmentFailure(message: "Failed to load apartments"));
     }
   }
+  void updateApartmentRating(int apartmentId, double rating) {
+    if (state is ApartmentSuccess) {
+      final currentState = state as ApartmentSuccess;
+      final updatedApartments = currentState.apartments.map((apt) {
+        if (apt.id == apartmentId) {
+          return apt.copyWith(rating: rating); // تحتاج copyWith في موديل ApartmentModel
+        }
+        return apt;
+      }).toList();
+      emit(ApartmentSuccess(updatedApartments));
+    }
+  }
 }

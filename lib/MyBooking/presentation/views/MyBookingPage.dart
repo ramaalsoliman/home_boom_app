@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:home_boom_app/Apartment%20Specifications/pesentation/views/page_for_descrebtion.dart';
+import 'package:home_boom_app/Apartments/presentation/manage/cubit_apartment.dart';
 import 'package:home_boom_app/Booking/presentation/manage/cubit_for_Booking.dart';
 import 'package:home_boom_app/Booking/presentation/manage/state_for_Booking.dart';
 import 'package:home_boom_app/MyBooking/presentation/manage/cubit_mybooking.dart';
@@ -1765,60 +1766,26 @@ class MyBookingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => CubitMybooking()..getMyBookings(userId, token),
-        ),
-        BlocProvider(create: (_) => CubitForBooking()),
+        BlocProvider(create: (_) => CubitMybooking()..getMyBookings(userId, token)),
         BlocProvider(create: (_) => CubitBookingRating()),
       ],
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<CubitBookingRating, RateBookingState>(
-            listener: (context, state) {
-              if (state is RateBookingSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("تم إرسال التقييم بنجاح")),
-                );
-              }
+      child: BlocListener<CubitBookingRating, RateBookingState>(
+        listener: (context, state) {
+          if (state is RateBookingSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("تم إرسال التقييم بنجاح")),
+            );
 
-              if (state is RateBookingFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-            },
-          ),
-          BlocListener<CubitForBooking, StateForBooking>(
-            listener: (context, state) {
-              if (state is BookingcancelSuccess ||
-                  state is BookingUpdateSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      state is BookingcancelSuccess
-                          ? "Booking cancel successfully"
-                          : "Update sent successfully. Waiting for owner approval",
-                    ),
-                  ),
-                );
-                context.read<CubitMybooking>().getMyBookings(userId, token);
-              }
+            // تحديث صفحة الشقق مباشرة بعد التقييم
+            context.read<CubitApartment>().getallApartment();
+          }
 
-              if (
-                  state is BookingUpdateFauiler) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-              if (state is BookingcancelFauiler 
-                  ) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-            },
-          ),
-        ],
+          if (state is RateBookingFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
         child: Scaffold(
           backgroundColor: const Color(0xff7eaf96),
           appBar: AppBar(
@@ -1835,10 +1802,7 @@ class MyBookingsPage extends StatelessWidget {
 
               if (state is MyBookingFauiler) {
                 return Center(
-                  child: Text(
-                    state.message,
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  child: Text(state.message, style: const TextStyle(color: Colors.white)),
                 );
               }
 
@@ -1847,10 +1811,7 @@ class MyBookingsPage extends StatelessWidget {
 
                 if (bookings.isEmpty) {
                   return const Center(
-                    child: Text(
-                      "No bookings found",
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: Text("No bookings found", style: TextStyle(color: Colors.white)),
                   );
                 }
 
@@ -1859,30 +1820,20 @@ class MyBookingsPage extends StatelessWidget {
                   itemCount: bookings.length,
                   itemBuilder: (context, index) {
                     final booking = bookings[index];
-
-                    final canEditOrCancel = booking.status == 'pending' ||
-                        booking.status == 'confirmed';
+                    final canRate = booking.status == 'confirmed';
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(.15),
-                            blurRadius: 6,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.15), blurRadius: 6, offset: const Offset(0, 4))],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(16),
-                            ),
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                             child: Image.network(
                               booking.outdoor_image,
                               height: 200,
@@ -1895,50 +1846,24 @@ class MyBookingsPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  booking.apartment_title,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                Text(booking.apartment_title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 6),
-                                Text(
-                                  "${booking.start_date} → ${booking.end_date}",
-                                  style: const TextStyle(fontSize: 16),
-                                ),
+                                Text("${booking.start_date} → ${booking.end_date}", style: const TextStyle(fontSize: 16)),
                                 const SizedBox(height: 6),
-                                Text(
-                                  "\$${booking.total_price}",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
+                                Text("\$${booking.total_price}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                                 const SizedBox(height: 10),
                                 Row(
                                   children: [
-                                    const Text(
-                                      "Status: ",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
+                                    const Text("Status: ", style: TextStyle(fontWeight: FontWeight.w600)),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                         color: booking.status == 'pending'
                                             ? Colors.orange.withOpacity(.2)
                                             : booking.status == 'confirmed'
                                                 ? Colors.green.withOpacity(.2)
-                                                : booking.status == 'rejected'
-                                                    ? Colors.red.withOpacity(.2)
-                                                    : Colors.grey.withOpacity(.2),
+                                                : Colors.red.withOpacity(.2),
                                       ),
                                       child: Text(
                                         booking.status,
@@ -1946,82 +1871,49 @@ class MyBookingsPage extends StatelessWidget {
                                           fontWeight: FontWeight.bold,
                                           color: booking.status == 'pending'
                                               ? Colors.orange
-                                              : booking.status ==
-                                                      'confirmed'
+                                              : booking.status == 'confirmed'
                                                   ? Colors.green
-                                                  : booking.status ==
-                                                          'rejected'
-                                                      ? Colors.red
-                                                      : Colors.grey,
+                                                  : Colors.red,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 14),
-                                if (canEditOrCancel)
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color(0xff7eaf96),
-                                          ),
-                                          onPressed: () {},
-                                          child: const Text("Edit"),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                          ),
-                                          onPressed: () {},
-                                          child: const Text("Cancel"),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
 
-                                /// ⭐ النجوم التفاعلية
-                                if (booking.status == 'confirmed')
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: RatingBar.builder(
-                                      initialRating:
-                                          booking.rating != null
-                                              ? booking.rating! / 20
-                                              : 0,
-                                      minRating: 1,
-                                      direction: Axis.horizontal,
-                                      allowHalfRating: false,
-                                      itemCount: 5,
-                                      itemPadding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0),
-                                      itemBuilder: (context, _) => const Icon(
-                                        Icons.star,
-                                        color: Colors.amber,
-                                      ),
-                                      onRatingUpdate: (rating) {
-                                        double backendRating = rating * 20;
-                                        context
-                                            .read<CubitBookingRating>()
-                                            .rateBooking(
-                                              userId: userId,
-                                              bookingId:
-                                                  booking.booking_id,
-                                              rating: backendRating,
-                                              token: token,
-                                            )
-                                            .then((_) {
-                                          // تحديث مباشر في UI بدون انتظار getMyBookings
-                                          booking.rating = backendRating;
-                                        });
-                                      },
-                                    ),
-                                  ),
+                                if (canRate)
+                                  RatingBar.builder(
+  initialRating: booking.rating != null ? booking.rating! / 20 : 0,
+  minRating: 1,
+  direction: Axis.horizontal,
+  allowHalfRating: false,
+  itemCount: 5,
+  itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+  itemBuilder: (context, _) => const Icon(
+    Icons.star,
+    color: Colors.amber,
+  ),
+  onRatingUpdate: (rating) {
+    double backendRating = rating * 20;
+
+    // استدعاء الكيوبت لإرسال التقييم للسيرفر
+    context.read<CubitBookingRating>().rateBooking(
+      userId: userId,
+      bookingId: booking.booking_id,
+      rating: backendRating,
+      token: token,
+    ).then((_) {
+      // ✅ بعد نجاح التقييم، تحديث rating للشقة مباشرة في واجهة الشقق
+      context.read<CubitApartment>().updateApartmentRating(
+        booking.apartmentId, // معرف الشقة المرتبطة بالحجز
+        backendRating,
+      );
+
+      // تحديث مباشر في الـ UI بدون إعادة تحميل كل الحجز
+      booking.rating = backendRating;
+    });
+  },
+),
                               ],
                             ),
                           ),

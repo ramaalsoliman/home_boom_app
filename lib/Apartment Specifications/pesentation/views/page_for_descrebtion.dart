@@ -1475,9 +1475,9 @@ class _ApartmentDetailsState extends State<ApartmentDetails> {
 
                           Row(
                             children: [
-                              _infoBox(Icons.bed, apartment.rooms.toString()),
+                              _icons(Icons.bed, apartment.rooms.toString()),
                               const SizedBox(width: 12),
-                              _infoBox(Icons.bathtub, "1 Bathroom"),
+                              _icons(Icons.bathtub, "1 Bathroom"),
                             ],
                           ),
 
@@ -1671,7 +1671,7 @@ class _ApartmentDetailsState extends State<ApartmentDetails> {
     );
   }
 
-  Widget _infoBox(IconData icon, String text) {
+  Widget _icons(IconData icon, String text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(

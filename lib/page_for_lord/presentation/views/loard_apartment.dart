@@ -562,38 +562,38 @@ class OwnerApartmentsPage extends StatefulWidget {
 
 class _OwnerApartmentsPageState extends State<OwnerApartmentsPage> {
   int _selectedIndex = 0;
-  TextEditingController priceController = TextEditingController();
-  TextEditingController roomController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController roomController = TextEditingController();
 
   void _onItemTapped(int index) {
-  if (index == 1) { // Pending bookings
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const PendingBookingsScreen()),
-    );
-    return; // لا تغير الـ selectedIndex
-  }
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const PendingBookingsScreen()),
+      );
+      return;
+    }
 
-  if (index == 2) { // Editing / Update Requests
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const OwnerPendingUpdatesScreen()),
-    );
-    return; // لا تغير الـ selectedIndex
-  }
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OwnerPendingUpdatesScreen()),
+      );
+      return;
+    }
 
-  if (index == 3) { // Settings
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SettingsScreen()),
-    );
-    return;
-  }
+    if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+      );
+      return;
+    }
 
-  setState(() {
-    _selectedIndex = index;
-  });
-}
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   void initState() {
@@ -603,267 +603,203 @@ class _OwnerApartmentsPageState extends State<OwnerApartmentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocListener<CubitLoard, StateLoard>(
       listener: (context, state) {
-        if (state is ApartmentDeleted) {
+        if (state is ApartmentDeleted ||
+            state is DeleteApartmentSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Apartment deleted successfully")),
           );
-        } else if (state is ApartmentUpdated) {
+        }
+
+        if (state is ApartmentUpdated ||
+            state is UpdateApartmentSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Apartment updated successfully")),
-          );
-        } else if (state is UpdateApartmentSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Apartment Updated Successfully")),
-          );
-        } else if (state is DeleteApartmentSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Apartment Deleted Successfully")),
           );
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xff7eaf96),
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 35),
-              const Padding(
-                padding: EdgeInsets.only(left: 10, right: 170),
+              const SizedBox(height: 40),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Text(
                   "Your Apartments",
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: theme.textTheme.headlineSmall,
                 ),
               ),
-              const SizedBox(height: 10),
+
+              const SizedBox(height: 20),
+
               BlocBuilder<CubitLoard, StateLoard>(
                 builder: (context, state) {
                   if (state is LoardApartmentLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
+
                   if (state is LoardApartmentFailure) {
                     return Center(
                       child: Text(
                         state.message,
-                        style: const TextStyle(color: Colors.red, fontSize: 18),
+                        style: theme.textTheme.bodyLarge
+                            ?.copyWith(color: theme.colorScheme.error),
                       ),
                     );
                   }
+
                   if (state is LoardApartmentSuccess) {
                     final apartments = state.apartments;
+
                     return ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: apartments.length,
-                      separatorBuilder: (context, index) =>
+                      separatorBuilder: (_, __) =>
                           const SizedBox(height: 20),
                       itemBuilder: (context, index) {
                         final apartment = apartments[index];
+
                         return InkWell(
+                          borderRadius: BorderRadius.circular(20),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    ApartmentDetails(apartmentId: apartment.id),
+                                builder: (_) => ApartmentDetails(
+                                  apartmentId: apartment.id,
+                                ),
                               ),
                             );
                           },
                           child: Container(
-                            height: 400,
-                            margin: const EdgeInsets.symmetric(horizontal: 20),
+                            margin:
+                                const EdgeInsets.symmetric(horizontal: 20),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: theme.cardColor,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.grey.shade900,
-                                  blurRadius: 20,
-                                  blurStyle: BlurStyle.solid,
+                                  color: theme.shadowColor.withOpacity(0.15),
+                                  blurRadius: 15,
                                 ),
                               ],
                             ),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 15),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 15,
+                                ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(20),
                                   ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.network(
-                                      apartment.outdoor_image,
-                                      height: 220,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  child: Image.network(
+                                    apartment.outdoor_image,
+                                    height: 220,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
                                   ),
                                 ),
-                                const SizedBox(height: 9),
+
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 15,
-                                  ),
+                                  padding: const EdgeInsets.all(16),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         apartment.title,
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
+                                        style:
+                                            theme.textTheme.titleLarge,
                                       ),
-                                      const SizedBox(height: 5),
+
+                                      const SizedBox(height: 6),
+
                                       Row(
                                         children: [
                                           Icon(
                                             Icons.location_on_outlined,
-                                            color: Colors.grey.shade500,
+                                            size: 18,
+                                            color:
+                                                theme.iconTheme.color,
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
                                             apartment.location,
-                                            style: TextStyle(
-                                              color: Colors.grey.shade500,
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style: theme
+                                                .textTheme.bodyMedium,
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 5),
+
+                                      const SizedBox(height: 8),
+
                                       Text(
                                         "\$${apartment.price}",
-                                        style: const TextStyle(
-                                          color: Color(0xff7eaf96),
-                                          fontSize: 18,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                          color:
+                                              Color(0xff7eaf96),
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      const SizedBox(height: 10),
+
+                                      const SizedBox(height: 16),
+
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           ElevatedButton.icon(
+                                            icon:
+                                                const Icon(Icons.edit),
+                                            label: const Text("Edit"),
                                             onPressed: () {
                                               priceController.text =
-                                                  apartment.price.toString();
+                                                  apartment.price
+                                                      .toString();
                                               roomController.text =
-                                                  apartment.rooms.toString();
+                                                  apartment.rooms
+                                                      .toString();
+
                                               showDialog(
                                                 context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    title:
-                                                        const Text("Edit Apartment"),
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        TextField(
-                                                          controller:
-                                                              priceController,
-                                                          keyboardType:
-                                                              TextInputType.number,
-                                                          decoration:
-                                                              const InputDecoration(
-                                                            labelText: "Price",
-                                                          ),
-                                                        ),
-                                                        TextField(
-                                                          controller: roomController,
-                                                          keyboardType:
-                                                              TextInputType.number,
-                                                          decoration:
-                                                              const InputDecoration(
-                                                            labelText: "Rooms",
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(context),
-                                                        child: const Text("Cancel"),
-                                                      ),
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          context
-                                                              .read<CubitLoard>()
-                                                              .updateApartment(
-                                                                apartment.id,
-                                                                int.parse(
-                                                                    priceController
-                                                                        .text),
-                                                                int.parse(
-                                                                    roomController
-                                                                        .text),
-                                                              );
-                                                          Navigator.pop(context);
-                                                        },
-                                                        child: const Text("Save"),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
+                                                builder: (_) =>
+                                                    _editDialog(
+                                                  context,
+                                                  apartment.id,
+                                                ),
                                               );
                                             },
-                                            icon: const Icon(Icons.edit),
-                                            label: const Text("Edit"),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xff7eaf96),
-                                            ),
                                           ),
                                           ElevatedButton.icon(
+                                            icon: const Icon(Icons.delete),
+                                            label:
+                                                const Text("Delete"),
                                             onPressed: () async {
-                                              final confirm = await showDialog(
+                                              final confirm =
+                                                  await showDialog(
                                                 context: context,
-                                                builder: (_) => AlertDialog(
-                                                  title: const Text(
-                                                    "Delete Confirmation",
-                                                  ),
-                                                  content: const Text(
-                                                    "Are you sure you want to delete this apartment?",
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(context,
-                                                              false),
-                                                      child: const Text("Cancel"),
-                                                    ),
-                                                    ElevatedButton(
-                                                      onPressed: () =>
-                                                          Navigator.pop(context,
-                                                              true),
-                                                      child: const Text("Delete"),
-                                                    ),
-                                                  ],
-                                                ),
+                                                builder: (_) =>
+                                                    _deleteDialog(
+                                                        context),
                                               );
 
                                               if (confirm == true) {
                                                 context
                                                     .read<CubitLoard>()
-                                                    .deleteApartment(apartment.id);
+                                                    .deleteApartment(
+                                                        apartment.id);
                                               }
                                             },
-                                            icon: const Icon(Icons.delete),
-                                            label: const Text("Delete"),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color(0xff7eaf96),
-                                            ),
                                           ),
                                         ],
                                       ),
@@ -877,35 +813,90 @@ class _OwnerApartmentsPageState extends State<OwnerApartmentsPage> {
                       },
                     );
                   }
+
                   return const SizedBox();
                 },
               ),
             ],
           ),
         ),
+
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: const Color(0xff7eaf96),
-          unselectedItemColor: Colors.grey,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.pending_actions),
-              label: 'Pending',
-            ),
+                icon: Icon(Icons.home), label: 'Home'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.edit_note_outlined),
-              label: 'Editing',
-            ),
+                icon: Icon(Icons.pending_actions),
+                label: 'Pending'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
+                icon: Icon(Icons.edit_note_outlined),
+                label: 'Editing'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'Settings'),
           ],
         ),
       ),
+    );
+  }
+
+  /// ===== Dialogs =====
+
+  Widget _editDialog(BuildContext context, int apartmentId) {
+    return AlertDialog(
+      title: const Text("Edit Apartment"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: priceController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Price"),
+          ),
+          TextField(
+            controller: roomController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Rooms"),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            context.read<CubitLoard>().updateApartment(
+                  apartmentId,
+                  int.parse(priceController.text),
+                  int.parse(roomController.text),
+                );
+            Navigator.pop(context);
+          },
+          child: const Text("Save"),
+        ),
+      ],
+    );
+  }
+
+  Widget _deleteDialog(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Delete Confirmation"),
+      content: const Text(
+          "Are you sure you want to delete this apartment?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text("Delete"),
+        ),
+      ],
     );
   }
 }

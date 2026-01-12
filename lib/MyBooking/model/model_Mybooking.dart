@@ -2,6 +2,7 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class ModelMybooking {
+  final int apartmentId;
   final int booking_id;
   final String status;
   final String start_date;
@@ -11,6 +12,7 @@ class ModelMybooking {
   final String outdoor_image;
    double? rating; 
   ModelMybooking({
+    required this.apartmentId,
     required this.booking_id,
     required this.status,
     required this.start_date,
@@ -22,6 +24,7 @@ class ModelMybooking {
   });
 
   ModelMybooking copyWith({
+    int?apartmentId,
     int? booking_id,
     String? status,
     String? start_date,
@@ -32,6 +35,7 @@ class ModelMybooking {
     double?rating,
   }) {
     return ModelMybooking(
+      apartmentId: apartmentId??this.apartmentId,
       booking_id: booking_id ?? this.booking_id,
       status: status ?? this.status,
       start_date: start_date ?? this.start_date,
@@ -45,6 +49,7 @@ class ModelMybooking {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'apartmentId':apartmentId,
       'booking_id': booking_id,
       'status': status,
       'start_date': start_date,
@@ -58,6 +63,7 @@ class ModelMybooking {
 
   factory ModelMybooking.fromMap(Map<String, dynamic> map) {
     return ModelMybooking(
+      apartmentId: map['apartment_id'],
       booking_id: map['booking_id'] as int,
       status: map['status'] as String,
       start_date: map['start_date'] as String,
@@ -77,7 +83,7 @@ class ModelMybooking {
 
   @override
   String toString() {
-    return 'ModelMybooking(rating:$rating,booking_id: $booking_id, status: $status, start_date: $start_date, end_date: $end_date, total_price: $total_price, apartment_title: $apartment_title, outdoor_image: $outdoor_image)';
+    return 'ModelMybooking(apartmentId:$apartmentId,rating:$rating,booking_id: $booking_id, status: $status, start_date: $start_date, end_date: $end_date, total_price: $total_price, apartment_title: $apartment_title, outdoor_image: $outdoor_image)';
   }
 
   @override
@@ -85,6 +91,7 @@ class ModelMybooking {
     if (identical(this, other)) return true;
   
     return 
+    other.apartmentId==apartmentId&&
     other.rating==rating&&
       other.booking_id == booking_id &&
       other.status == status &&
@@ -99,6 +106,7 @@ class ModelMybooking {
   int get hashCode {
 
     return
+    apartmentId.hashCode^
     rating.hashCode^
      booking_id.hashCode ^
       status.hashCode ^

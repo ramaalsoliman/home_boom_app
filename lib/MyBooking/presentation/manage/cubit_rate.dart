@@ -3,10 +3,9 @@ import 'package:home_boom_app/MyBooking/presentation/manage/state_rate.dart';
 import 'package:home_boom_app/MyBooking/service/service_mybooking.dart';
 
 class CubitBookingRating extends Cubit<RateBookingState> {
-  final ServiceMybooking service=ServiceMybooking();
+  final ServiceMybooking service = ServiceMybooking();
 
-    CubitBookingRating() : super((RateBookingInitial()));
-
+  CubitBookingRating() : super(RateBookingInitial());
 
   Future<void> rateBooking({
     required int userId,
@@ -14,7 +13,7 @@ class CubitBookingRating extends Cubit<RateBookingState> {
     required double rating,
     required String token,
   }) async {
-    emit((RateBookingLoading()));
+    emit(RateBookingLoading());
     try {
       await service.addRating(
         userId: userId,
@@ -23,9 +22,10 @@ class CubitBookingRating extends Cubit<RateBookingState> {
         token: token,
       );
 
-      emit(RateBookingSuccess( rating,bookingId));
+      emit(RateBookingSuccess(rating, bookingId));
     } catch (e) {
-      emit(RateBookingFailure( e.toString()));
+      emit(RateBookingFailure(e.toString()));
     }
   }
 }
+

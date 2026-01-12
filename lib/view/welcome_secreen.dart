@@ -21,7 +21,7 @@ class WelcomeSecreen extends StatelessWidget {
             padding: const EdgeInsets.only(top: 20,left: 70,right: 67),
             child: Text(("Here you log in securely"),style: TextStyle(fontSize: 18,fontWeight: FontWeight.w400,color:Color(0xfff6fcf5)),),
           ),
-          Image(image: AssetImage("assets/welcome.jpg")),
+          Image(image: AssetImage("assets/welcomescree.jpg",),color: Colors.white,),
           InkWell(
             onTap: () {
                 Navigator.push(context, 

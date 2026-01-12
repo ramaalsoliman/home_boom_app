@@ -343,6 +343,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               width: 2,
                             ),
                           ),
+                           focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              borderSide: BorderSide(
+                                color: Color(0xff7eaf96),
+                                width: 2,
+                              )
+                            ),
                           label: Text(
                             "Enter your date",
                             style: TextStyle(
